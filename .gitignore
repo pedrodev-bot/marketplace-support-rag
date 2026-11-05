@@ -1,0 +1,22 @@
+# Virtual Environments (Dependencies should be managed via requirements.txt)
+venv/
+.venv/
+env/
+
+# Python Cache and Compiled Files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local Vector Database (Keeps large embedding files out of version control)
+banco_vetorial/
+
+# Environment Variables and Secrets (CRITICAL: Prevents API key leaks)
+.env
+.env.local
+*.secret
+
+# OS and IDE generated files
+.vscode/
+.DS_Store
