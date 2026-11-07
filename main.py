@@ -69,7 +69,7 @@ async def ask_assistant(request: SupportRequest):
         )
 
         return SupportResponse(
-            answer=response.choices[0].message.content,
+            answer=str(response.choices[0].message.content),
             source_context=retrieved_context
         )
 

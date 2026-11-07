@@ -1,30 +1,31 @@
+import os
 import chromadb
 
+# initialize Vector Database
 chroma_client = chromadb.PersistentClient(path="./banco_vetorial")
-
 collection = chroma_client.get_or_create_collection(name="platform_rules_kb")
 
-chunks_de_texto = [
-    "A taxa de repasse da plataforma para o plano Básico é de 12% sobre o valor bruto do pedido.",
-    "O repasse financeiro para os lojistas parceiros ocorre toda quarta-feira via PIX ou TED.",
-    "Lojistas com avaliação média inferior a 3.5 perdem o selo de Destaque e sofrem redução no algoritmo de visibilidade."
-]
+# extract: Read the external Knowledge Base file
+file_path = "faq_lojistas.txt"
 
-ids_dos_chunks = ["bloco_1", "bloco_2", "bloco_3"]
+if not os.path.exists(file_path):
+    raise FileNotFoundError(f"CRITICAL: Knowledge base file '{file_path}' not found.")
 
-print("Gerando vetores e salvando no banco...")
+with open(file_path, "r", encoding="utf-8") as file:
+    content = file.read()
+
+# chunk the text (splitting by newlines and removing empty lines)
+text_chunks = [line.strip() for line in content.split('\n') if line.strip()]
+
+# generate sequential unique IDs for the chunks
+chunk_ids = [f"rule_chunk_{i}" for i in range(len(text_chunks))]
+
+# load upsert into ChromaDB
+print(f"🔄 Ingesting {len(text_chunks)} rules into the vector database...")
+
 collection.upsert(
-    documents=chunks_de_texto,
-    ids=ids_dos_chunks
+    documents=text_chunks,
+    ids=chunk_ids
 )
 
-pergunta_do_usuario = "Que dia cai o dinheiro na minha conta?"
-print(f"\nBuscando a resposta para: '{pergunta_do_usuario}'")
-
-resultados = collection.query(
-    query_texts=[pergunta_do_usuario],
-    n_results=1
-)
-
-print("\n--- TEXTO ENCONTRADO PELO BANCO VETORIAL ---")
-print(resultados['documents'][0][0])
+print("✅ Data ingestion complete! The knowledge base is updated.")
